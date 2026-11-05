@@ -1,0 +1,54 @@
+{
+  "name": "Your First Name",
+  "timezone": "America/New_York",
+  "tracker_title": "My Job Leads",
+
+  "paths": {
+    "leads_dir": "",
+    "out_dir": ""
+  },
+
+  "resume": {
+    "base_resume": "/mnt/project-files/YYYYMMDD_Your_Name_Resume.docx",
+    "extra_context": ["/mnt/project-files/Your_Portfolio.docx"],
+    "file_prefix": "Your_Name"
+  },
+
+  "search": {
+    "fractional_queries": ["fractional CTO", "fractional engineering leader", "interim head of engineering", "contract engineering manager"],
+    "fulltime_queries": ["engineering manager", "senior manager software engineering", "director of software engineering", "head of engineering"],
+    "focus": "engineering leadership: manager, senior manager, director, head of, VP, fractional/interim engineering leadership, delivery/program leadership",
+    "domains": ["fintech", "payments", "HR/payroll"],
+    "stack": ["Java", "Spring Boot", "React", "Angular", "AWS", "Azure"]
+  },
+
+  "filters": {
+    "exclude_title_keywords": ["architect"],
+    "exclude_companies": [],
+    "skip_keys": [],
+    "min_score": 6,
+    "max_per_category": 50
+  },
+
+  "location": {
+    "allow_remote": true,
+    "allow_onsite_anywhere": false,
+    "home_metro": "Your City",
+    "metro_keywords": ["your city", "nearby suburb 1", "nearby suburb 2"]
+  },
+
+  "gmail": {
+    "inbox": "you@example.com",
+    "scans_per_day": 4
+  },
+
+  "followup": {
+    "pitch": "I lead engineering teams in <your domain> and would welcome a quick chat.",
+    "due_days": 5
+  },
+
+  "artifacts": {
+    "tracker_url": "",
+    "board_url": ""
+  }
+}

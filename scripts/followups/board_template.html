@@ -1,0 +1,180 @@
+<title>Follow-up Board</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: summary strip, filter bar, then a responsive grid of job cards sorted oldest application first */
+:root {
+  --bg: #f5f6f4; --surface: #ffffff; --fg: #1d2421; --muted: #5d6a64; --line: #dde3df;
+  --accent: #1f6f5c; --accent-soft: #e2f0eb;
+  --warn: #9a5b00; --warn-bg: #fbefd9; --ok: #2c6a2f; --ok-bg: #e4f2e2; --cold: #6b6f7a; --cold-bg: #eceef2;
+  --display: "Fraunces", Georgia, serif; --body: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121715; --surface: #1a211e; --fg: #e4ebe7; --muted: #95a39c; --line: #2b3531;
+  --accent: #6cc5a9; --accent-soft: #1e3a31; --warn: #f0b860; --warn-bg: #3a2d16; --ok: #8fd393; --ok-bg: #1d3320; --cold: #a9aeb9; --cold-bg: #262a31; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121715; --surface: #1a211e; --fg: #e4ebe7; --muted: #95a39c; --line: #2b3531;
+  --accent: #6cc5a9; --accent-soft: #1e3a31; --warn: #f0b860; --warn-bg: #3a2d16; --ok: #8fd393; --ok-bg: #1d3320; --cold: #a9aeb9; --cold-bg: #262a31; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 14px; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 24px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 20px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: 28px; margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 70ch; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+.stat b { display: block; font-family: var(--mono); font-size: 24px; font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+.stat.alert b { color: var(--warn); }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bar button, .chip-btn { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+.bar button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.bar input { font: inherit; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--fg); min-width: 0; flex: 1 1 180px; max-width: 280px; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; align-content: start; }
+.card.done { opacity: .55; }
+.card.rej { opacity: .5; }
+.card.rej .co, .card.rej .title { text-decoration: line-through; }
+.pill.rej { background: var(--warn-bg); color: var(--warn); }
+.actions button.rej-btn { color: var(--warn); }
+.top { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
+.co { font-weight: 600; font-size: 15px; }
+.title { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.age { font-family: var(--mono); font-size: 12px; white-space: nowrap; padding: 3px 8px; border-radius: 6px; background: var(--cold-bg); color: var(--cold); }
+.age.due { background: var(--warn-bg); color: var(--warn); }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; }
+.pill { padding: 2px 8px; border-radius: 999px; background: var(--cold-bg); color: var(--cold); white-space: nowrap; }
+.pill.received { background: var(--ok-bg); color: var(--ok); }
+.pill.ref { font-family: var(--mono); }
+.contact { border-top: 1px solid var(--line); padding-top: 10px; display: grid; gap: 4px; font-size: 13px; }
+.contact .who { font-weight: 500; }
+.contact .role { color: var(--muted); }
+.contact .none { color: var(--muted); font-style: italic; }
+.email { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.email code { font-family: var(--mono); font-size: 12px; background: var(--accent-soft); padding: 2px 6px; border-radius: 4px; user-select: all; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.actions a, .actions button { font: inherit; font-size: 13px; color: var(--accent); background: none; border: 1px solid var(--line); padding: 5px 10px; border-radius: 6px; cursor: pointer; text-decoration: none; }
+.actions a.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.note { color: var(--muted); font-size: 12px; max-width: 80ch; }
+.empty { color: var(--muted); padding: 24px 0; }
+.iv-wrap { display: grid; gap: 10px; }
+.iv-wrap h2 { font-family: var(--display); font-weight: 600; font-size: 20px; margin: 0; }
+.iv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 12px; }
+.iv { background: var(--surface); border: 1px solid var(--accent); border-left-width: 4px; border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.iv .when { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+.iv .when.tbd { color: var(--warn); }
+.iv dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 13px; }
+.iv dt { color: var(--muted); }
+.iv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+</style>
+<div class="wrap">
+  <header>
+    <h1>Follow-up Board</h1>
+    <p class="sub">Every job you've marked applied, oldest first, since those are most due for a nudge. Your <span id="inbox"></span> inbox is scanned for replies <span id="scans"></span> times each weekday; last scan __SCAN__.</p>
+  </header>
+  <section class="iv-wrap" aria-labelledby="iv-h">
+    <h2 id="iv-h">Active interviews</h2>
+    <div class="iv-grid" id="iv"></div>
+  </section>
+  <section class="stats" id="stats"></section>
+  <div class="bar" role="toolbar" aria-label="Filter">
+    <button data-f="all">All</button>
+    <button data-f="named">Named contact</button>
+    <button data-f="nocontact">No contact</button>
+    <button data-f="received">Got a confirmation</button>
+    <button data-f="todo">Not followed up</button>
+    <button data-f="rejected">Rejected</button>
+    <input id="q" type="search" placeholder="Search company or title" aria-label="Search company or title">
+  </div>
+  <section class="grid" id="grid"></section>
+  <p class="note">Contacts were found with AI-assisted search, mostly from public LinkedIn profiles, so confirm each person is still in that role before writing. No email addresses were guessed. "Mark followed up" and "Mark rejected" are saved only in this browser.</p>
+</div>
+<script>
+const ROWS = __DATA__;
+const CFG = __CONFIG__;
+const TODAY = new Date(new Date().toDateString() + ' 12:00');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let f = 'all', q = '', done = {}, rej = {};
+try { done = JSON.parse(localStorage.getItem('fu-done') || '{}'); rej = JSON.parse(localStorage.getItem('fu-rej') || '{}'); f = localStorage.getItem('fu-f') || 'all'; } catch (e) {}
+const save = () => { try { localStorage.setItem('fu-done', JSON.stringify(done)); localStorage.setItem('fu-rej', JSON.stringify(rej)); localStorage.setItem('fu-f', f); } catch (e) {} };
+const isRejected = r => r.email_status === 'rejected' || !!rej[r.id];
+const days = r => Math.round((TODAY - new Date(r.applied + 'T12:00:00')) / 864e5);
+const named = r => !!r.contact_name;
+function note(r) {
+  const first = (r.contact_name || '').split(' ')[0];
+  const co = r.company.replace(/,? (Inc\.?|LLC|llc|Ltd|Corp\.?|Corporation|Company NA)$/,'');
+  const when = new Date(r.applied+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const hi = `Hi${first ? ' ' + first : ''}, `;
+  const tail = ` ${CFG.pitch} Thanks, ${CFG.name}`;
+  let s = `${hi}I applied ${when} for the ${r.title} role at ${co}.${tail}`;
+  if (s.length > 200) s = `${hi}I applied ${when} for the ${r.title.split(/ [-\u2013(,]/)[0]} role at ${co}.${tail}`;
+  if (s.length > 200) s = `${hi}I applied ${when} for your engineering leadership role at ${co}.${tail}`;
+  if (s.length > 200) s = `${hi}I applied ${when} for a role at ${co}.${tail}`;
+  return s;
+}
+function card(r) {
+  const d = days(r), isDone = !!done[r.id], isRej = isRejected(r);
+  const contact = named(r)
+    ? `<div class="who">${esc(r.contact_name)}</div><div class="role">${esc(r.contact_title)}</div>`
+    : `<div class="none">${r.contact_level === 'general' ? 'No named person. Use the company page.' : 'No contact found. Reply through the job posting.'}</div>`;
+  const email = r.contact_email ? `<div class="email"><code>${esc(r.contact_email)}</code><button class="chip-btn" data-copy="${esc(r.contact_email)}">Copy</button></div>` : '';
+  return `<article class="card${isRej ? ' rej' : isDone ? ' done' : ''}">
+    <div class="top"><div><div class="co">${esc(r.company)}</div><div class="title">${esc(r.title)}</div></div>
+      <span class="age${d >= CFG.due_days ? ' due' : ''}" title="Applied ${esc(r.applied)}">${d}d ago</span></div>
+    <div class="meta"><span class="pill ref">${esc(r.id)}</span><span class="pill">${esc(r.source)}</span>
+      <span class="pill ${r.email_status === 'received' || r.email_status === 'interview' ? 'received' : r.email_status === 'rejected' ? 'rej' : ''}">${r.email_status === 'received' ? 'Confirmation received' : r.email_status === 'interview' ? 'Next steps email' : r.email_status === 'rejected' ? 'Rejection email' : r.email_status === 'not checked' ? 'Inbox not checked' : 'No reply yet'}</span>
+      ${r.posting === 'closed' ? '<span class="pill">Posting closed</span>' : ''}${isDone ? '<span class="pill received">Followed up</span>' : ''}${isRej ? '<span class="pill rej">Rejected</span>' : ''}</div>
+    <div class="contact">${contact}${email}</div>
+    <div class="actions">
+      ${r.contact_link ? `<a class="primary" href="${esc(r.contact_link)}" target="_blank" rel="noopener">${r.contact_link.includes('linkedin.com/in/') ? 'Open LinkedIn' : 'Open page'}</a>` : ''}
+      <button data-note="${esc(r.id)}">Copy note</button>
+      ${r.job_url ? `<a href="${esc(r.job_url)}" target="_blank" rel="noopener">Posting</a>` : ''}
+      ${r.email_url && r.email_status !== 'no email' && r.email_status !== 'not checked' ? `<a href="${esc(r.email_url)}" target="_blank" rel="noopener">Email</a>` : ''}
+      <button data-done="${esc(r.id)}">${isDone ? 'Undo followed up' : 'Mark followed up'}</button>
+      ${r.email_status === 'rejected' ? '' : `<button class="rej-btn" data-rej="${esc(r.id)}">${isRej ? 'Undo rejected' : 'Mark rejected'}</button>`}
+    </div></article>`;
+}
+const IV = __INTERVIEWS__;
+function renderIV() {
+  const fmt = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: CFG.tz, timeZoneName: 'short' });
+  const key = r => r.at || r.k;
+  const rows = IV.slice().sort((a, b) => key(a).localeCompare(key(b)));
+  document.getElementById('iv').innerHTML = rows.map(r => `<article class="iv">
+    <div><div class="co">${esc(r.co)}</div><div class="title">${esc(r.role)}</div></div>
+    <div class="when${r.at ? '' : ' tbd'}">${r.at ? esc(fmt.format(new Date(r.at))) : esc(r.when)}</div>
+    <div class="contact"><div class="who">Contact: ${esc(r.contact)}</div>${r.cemail ? `<div class="email"><a href="mailto:${esc(r.cemail)}"><code>${esc(r.cemail)}</code></a><button class="chip-btn" data-copy="${esc(r.cemail)}">Copy</button></div>` : '<div class="role">No email on file</div>'}${r.cphone ? `<div class="role">${esc(r.cphone)}</div>` : ''}</div>
+    <dl><dt>Stage</dt><dd>${esc(r.stage)}</dd><dt>With</dt><dd>${esc(r.with)}</dd><dt>Terms</dt><dd>${esc(r.terms)}</dd>${r.watch ? `<dt>Watch</dt><dd>${esc(r.watch)}</dd>` : ''}<dt>Prep</dt><dd>${esc(r.prep)}</dd></dl>
+    ${r.join ? `<div class="actions"><a class="primary" href="${esc(r.join)}" target="_blank" rel="noopener">Join on ${esc(r.where)}</a></div>` : ''}
+  </article>`).join('');
+}
+function render() {
+  document.querySelectorAll('[data-f]').forEach(b => b.setAttribute('aria-pressed', b.dataset.f === f));
+  const list = ROWS.filter(r => f === 'all' || (f === 'named' && named(r)) || (f === 'nocontact' && !named(r)) || (f === 'received' && r.email_status === 'received') || (f === 'todo' && !done[r.id] && !isRejected(r) && r.posting !== 'closed') || (f === 'rejected' && isRejected(r)))
+    .filter(r => !q || (r.company + ' ' + r.title).toLowerCase().includes(q));
+  document.getElementById('grid').innerHTML = list.map(card).join('') || '<p class="empty">No jobs match this filter.</p>';
+  const nDone = ROWS.filter(r => done[r.id]).length, due = ROWS.filter(r => days(r) >= CFG.due_days && !done[r.id] && !isRejected(r)).length, nRej = ROWS.filter(isRejected).length;
+  document.getElementById('stats').innerHTML = [
+    [ROWS.length, 'Applied'], [nRej, 'Rejected'], [ROWS.filter(r => r.email_status === 'received').length, 'Confirmations'],
+    [ROWS.filter(named).length, 'Named contacts'], [due, `Due (${CFG.due_days}+ days, open)`, 'alert'], [nDone, 'Followed up']
+  ].map(([n, l, c]) => `<div class="stat ${c || ''}"><b>${n}</b><span>${l}</span></div>`).join('');
+}
+async function copy(text, btn) {
+  const old = btn.textContent;
+  try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied'; }
+  catch (e) { btn.textContent = 'Copy failed'; }
+  setTimeout(() => btn.textContent = old, 1500);
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.f) { f = b.dataset.f; save(); render(); }
+  else if (b.dataset.copy) copy(b.dataset.copy, b);
+  else if (b.dataset.note) copy(note(ROWS.find(r => r.id === b.dataset.note)), b);
+  else if (b.dataset.rej) { rej[b.dataset.rej] ? delete rej[b.dataset.rej] : rej[b.dataset.rej] = 1; save(); render(); }
+  else if (b.dataset.done) { done[b.dataset.done] ? delete done[b.dataset.done] : done[b.dataset.done] = 1; save(); render(); }
+});
+document.getElementById('q').addEventListener('input', e => { q = e.target.value.trim().toLowerCase(); render(); });
+document.getElementById('inbox').textContent = CFG.inbox;
+document.getElementById('scans').textContent = CFG.scans;
+document.getElementById('iv-h').parentElement.hidden = !IV.length;
+renderIV();
+render();
+</script>

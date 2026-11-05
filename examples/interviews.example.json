@@ -1,0 +1,33 @@
+[
+  {
+    "co": "Example Corp",
+    "role": "Director of Software Engineering",
+    "at": "2026-01-15T19:00:00Z",
+    "when": "",
+    "stage": "First round",
+    "with": "Jane Doe (VP Engineering)",
+    "contact": "Jane Doe, Recruiter",
+    "cemail": "jane.doe@example.com",
+    "cphone": "",
+    "where": "Teams",
+    "join": "https://example.com/meeting-link",
+    "terms": "Remote US, $X-$Y base",
+    "watch": "Things to confirm or avoid overclaiming.",
+    "prep": "interview-prep/20260115_Example_Corp.md"
+  },
+  {
+    "co": "Another Co",
+    "role": "Engineering Manager",
+    "at": "",
+    "k": "2026-01-20T15:00:00Z",
+    "when": "Not confirmed yet",
+    "stage": "Scheduling",
+    "with": "Not known yet",
+    "contact": "Recruiting team",
+    "cemail": "",
+    "where": "",
+    "terms": "",
+    "watch": "",
+    "prep": ""
+  }
+]
